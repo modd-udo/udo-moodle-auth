@@ -42,6 +42,7 @@ class auth_plugin_udo extends auth_plugin_base {
 
   function pre_loginpage_hook() {
     global $USER, $DB;
+    if($USER && isset($USER->email)) return;
     if(isset($_REQUEST['MEAUTH']) && $_REQUEST['MEAUTH']) {
       $raw = base64_decode(str_replace(['-','_'],['+','/'],$_REQUEST['MEAUTH']));
       $remoteHash = substr($raw, 0, 20);
@@ -50,11 +51,14 @@ class auth_plugin_udo extends auth_plugin_base {
       if($myHash != $remoteHash)
         throw new \Exception("Error: Unable to verify login data hash");
       // |".bin2hex($remoteHash).'|'.bin2hex($myHash).'|'.substr($raw,20).'|'.$this->config->hmac_secret);
-      $data = explode(';', substr($raw,20));
-      if(count($data) != 4)
+      $data = explode(';', substr($raw,20),5);
+      if(count($data) != 5)
         throw new \Exception("Error: Unable to decode data");
-      list($id, $first, $last, $email) = $data;
+      list($id, $first, $last, $email, $tsData) = $data;
       $first = $first?:"Unknown"; $last = $last?:"Unknown";
+      $d = unpack('Nts',$tsData);
+      if($d['ts'] + 15 <= time())
+        throw new \Exception("Error: URL has expired");
       if($user = $DB->get_record('user', ['username' => "UDO$id"])) {
         $USER = $user;
         $dirty = $USER->firstname != $first || $USER->lastname != $last || $USER->email != $email;
