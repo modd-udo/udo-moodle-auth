@@ -43,15 +43,19 @@ class auth_plugin_udo extends auth_plugin_base {
   function pre_loginpage_hook() {
     global $USER, $DB;
     if(isset($_REQUEST['MEAUTH']) && $_REQUEST['MEAUTH']) {
-      $raw = base64_decode($_REQUEST['MEAUTH']);
-      if(substr($raw, 0, 20) !=
-        hash_hmac('sha1',substr($raw, 20),
-          hex2bin($this->config->hmac_secret),true))
+      $raw = base64_decode(str_replace(['-','_'],['+','/'],$_REQUEST['MEAUTH']));
+      $remoteHash = substr($raw, 0, 20);
+      $myHash = hash_hmac('sha1',substr($raw, 20),
+        hex2bin($this->config->hmac_secret),true);
+      if($myHash != $remoteHash)
         throw new \Exception("Error: Unable to verify login data hash");
+      // |".bin2hex($remoteHash).'|'.bin2hex($myHash).'|'.substr($raw,20).'|'.$this->config->hmac_secret);
       $data = explode(';', substr($raw,20));
-      if(count($data) != 5) return;
+      if(count($data) != 4)
+        throw new \Exception("Error: Unable to decode data");
       list($id, $first, $last, $email) = $data;
-      if($user = $DB->get_record('user', ['username' => "HACSU$id"])) {
+      $first = $first?:"Unknown"; $last = $last?:"Unknown";
+      if($user = $DB->get_record('user', ['username' => "UDO$id"])) {
         $USER = $user;
         $dirty = $USER->firstname != $first || $USER->lastname != $last || $USER->email != $email;
         if($dirty) {
@@ -65,20 +69,22 @@ class auth_plugin_udo extends auth_plugin_base {
         $USER = new stdClass();
         $USER->auth = 'udo';
         $USER->confirmed = 1;
-        $USER->username = "HACSU$id";
+        $USER->username = "UDO$id";
         $USER->idnumber = $id;
         $USER->firstname = $first;
         $USER->lastname = $last;
         $USER->email = $email;
         $USER->timecreated = time();
         $USER->timemodified = time();
+        $USER->country = 'AU';
         $USER->id = $DB->insert_record('user', $USER, true);
       }
     }
   }
 
   function loginpage_hook() {
-    if(isset($this->config->login_url) && !empty($this->config->login_url)) {
+    if(isset($this->config->login_url) && !empty($this->config->login_url) &&
+      !isset($_REQUEST['force']) && !isset($_REQUEST['username'])) {
       header("Location: {$this->config->login_url}", true);
       exit();
     }
@@ -89,8 +95,12 @@ class auth_plugin_udo extends auth_plugin_base {
     return false;
   }
 
-  function is_internal() {
+  function prevent_local_passwords() {
     return false;
+  }
+
+  function is_internal() {
+    return true;
   }
 
   /**
