@@ -3,7 +3,7 @@
 
 <table cellspacing="0" cellpadding="5" border="0">
   <tr valign="top">
-    <td align="right"><label for="hmac_secret"><?php print_string("auth_udo_hmac_secret", "auth_mechacsu") ?>: </label></td>
+    <td align="right"><label for="hmac_secret"><?php print_string("auth_udo_hmac_secret", "auto_udo") ?>: </label></td>
     <td>
       <input name="hmac_secret" id="hmac_secret" type="text" size="30" value="<?php
         if ( isset($config->hmac_secret) and !empty($config->hmac_secret)){
@@ -13,10 +13,10 @@
         }
         ?>" />
     </td>
-    <td><?php print_string("auth_udo_hmac_secret_description", "auth_mechacsu") ?></td>
+    <td><?php print_string("auth_udo_hmac_secret_description", "auto_udo") ?></td>
   </tr>
   <tr valign="top">
-    <td align="right"><label for="login_url"><?php print_string("auth_udo_login_url", "auth_mechacsu") ?>: </label></td>
+    <td align="right"><label for="login_url"><?php print_string("auth_udo_login_url", "auto_udo") ?>: </label></td>
     <td>
       <input name="login_url" id="login_url" type="text" size="30" value="<?php
         if ( isset($config->login_url) and !empty($config->login_url)){
@@ -24,10 +24,10 @@
         }
         ?>" />
     </td>
-    <td><?php print_string("auth_udo_login_url_description", "auth_mechacsu") ?></td>
+    <td><?php print_string("auth_udo_login_url_description", "auto_udo") ?></td>
   </tr>
   <tr valign="top">
-    <td align="right"><label for="changepass_url"><?php print_string("auth_udo_changepass_url", "auth_mechacsu") ?>: </label></td>
+    <td align="right"><label for="changepass_url"><?php print_string("auth_udo_changepass_url", "auto_udo") ?>: </label></td>
     <td>
       <input name="changepass_url" id="changepass_url" type="text" size="30" value="<?php
         if ( isset($config->changepass_url) and !empty($config->changepass_url)){
@@ -35,7 +35,7 @@
         }
         ?>" />
     </td>
-    <td><?php print_string("auth_udo_changepass_url_description", "auth_mechacsu") ?></td>
+    <td><?php print_string("auth_udo_changepass_url_description", "auto_udo") ?></td>
   </tr>
 <?php
 
